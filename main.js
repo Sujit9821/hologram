@@ -37,9 +37,9 @@ app.use((err, req, res, next) => {
     })
 })
 
-app.use(Express.static("app/build"));
+app.use(Express.static("client/build"));
 app.get("*", (req, res) => {
-    res.sendFile(path.resolve(path.resolve(), 'app', 'build', 'index.html'))
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
 })
 
 const PORT = process.env.PORT || 8808
