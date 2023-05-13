@@ -48,8 +48,8 @@ if (process.env.NODE_ENV === "production") {
     })
 }
 
-const PORT = process.env.PORT || 8808
+const PORT = process.env.PORT || 8800;
 app.listen(PORT, () => {
     connect();
-    console.log(`connected of ${PORT}`);
+    console.log(`connected on of ${PORT}`);
 })
