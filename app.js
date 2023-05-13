@@ -1,22 +1,17 @@
-// import Express from "express";
-const Express = require("express");
-// import AuthRoutes from "./routes/AuthRoutes.js";
-// import PostRoutes from "./routes/PostRoutes.js";
-// import UserRoutes from "./routes/UserRoutes.js";
-// import ChatRoutes from "./routes/ChatRoutes.js";
-// import NotificationRoutes from "./routes/NotificationRoutes.js";
-// import mongoose from "mongoose";
-const mongoose = require("mongoose")
-// import cookieParser from "cookie-parser";
-// import path from "path"
-const path = require('path');
-
-// import dotenv from "dotenv"
-const dotenv = require('dotenv');
+import Express from "express";
+import AuthRoutes from "./routes/AuthRoutes.js";
+import PostRoutes from "./routes/PostRoutes.js";
+import UserRoutes from "./routes/UserRoutes.js";
+import ChatRoutes from "./routes/ChatRoutes.js";
+import NotificationRoutes from "./routes/NotificationRoutes.js";
+import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
+import path from "path"
+import dotenv from "dotenv"
 dotenv.config({ path: ".env" });
 const app = Express();
 app.use(Express.json());
-// app.use(cookieParser());
+app.use(cookieParser());
 
 
 const connect = async () => {
@@ -24,11 +19,11 @@ const connect = async () => {
     console.log("connected to database");
 }
 
-// app.use('/api/auth', AuthRoutes);
-// app.use('/api/post', PostRoutes);
-// app.use('/api/user', UserRoutes);
-// app.use('/api/chat', ChatRoutes);
-// app.use('/api/notification', NotificationRoutes);
+app.use('/api/auth', AuthRoutes);
+app.use('/api/post', PostRoutes);
+app.use('/api/user', UserRoutes);
+app.use('/api/chat', ChatRoutes);
+app.use('/api/notification', NotificationRoutes);
 
 
 app.use((err, req, res, next) => {
@@ -42,17 +37,16 @@ app.use((err, req, res, next) => {
     })
 })
 
-// if (process.env.NODE_ENV === "production") {
-    // const path = require("path");
-    app.use(Express.static(path.resolve(__dirname, 'client', 'build')));
+if (process.env.NODE_ENV === "production") {
+    app.use(Express.static(path.resolve(path.resolve(), 'client', 'build')));
     app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'), function (err) {
+        res.sendFile(path.resolve(path.resolve(), 'client', 'build', 'index.html'), function (err) {
             if (err) {
                 res.status(500).send(err)
             }
         });
     })
-// }
+}
 
 const PORT = process.env.PORT || 8808
 app.listen(PORT, () => {
