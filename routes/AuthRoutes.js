@@ -6,8 +6,10 @@ import genError from "../utils/genError.js";
 import userNotify from "../models/userNotify.js";
 import { verifyUser } from "../utils/verifyUser.js";
 import key from "../models/key.js";
-import { resetPasswordEmail } from "../utils/sendMail.js";
+import { resetPasswordEmail, verifyEmail } from "../utils/sendMail.js";
 import token from "../models/token.js"
+import dotenv from "dotenv"
+dotenv.config({ path: ".env" });
 const app = Express();
 
 
@@ -86,13 +88,14 @@ app.post('/sendOTP', async (req, res, next) => {
         let user = await Users.findOne({ email: req.body.email });
         if (!user) return next(genError(400, "No Account Exist!!"));
         let OTP = Math.ceil(1000 + Math.random() * 8999);
+        await resetPasswordEmail(req.body.email, OTP);
         let data = await (new token({
             otp: OTP,
             email: req.body.email
         })).save();
-        await resetPasswordEmail(req.body.email, OTP);
-        res.status(200).json(data);
+        res.status(200).json({ success: true });
     } catch (err) {
+        console.log(err);
         next(genError(500, "Server Error!!"));
     }
 })
@@ -131,12 +134,14 @@ app.post('/verifyEmail', async (req, res, next) => {
         let user = await Users.findOne({ email: req.body.email });
         if (user) return next(genError(400, "Already Account Exist!!"));
         let OTP = Math.ceil(1000 + Math.random() * 8999);
+        await verifyEmail(req.body.email, OTP);
         let data = await (new token({
             otp: OTP,
             email: req.body.email
         })).save();
         res.status(200).json({ success: true });
     } catch (err) {
+        console.log(err);
         next(genError(500, "Server Error!!"));
     }
 })

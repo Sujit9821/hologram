@@ -140,7 +140,7 @@ app.get('/sharedPost/:id', verifyUser, async (req, res, next) => {
         postUser = postUser._doc;
         data = {
             ...data,
-            "photo": `/uploads/${data.photo}`,
+            "photo": data.photo,
             "createdAt": timeago.format(data.createdAt),
             "userprofile": postUser.img,
             "username": postUser.username

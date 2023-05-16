@@ -1,5 +1,9 @@
 import Express from "express";
 import multer from "multer";
+import multerS3 from "multer-s3"
+import AWS from "aws-sdk"
+import dotenv from "dotenv"
+dotenv.config({ path: ".env" });
 import timeago from "timeago.js"
 import { verifyUser } from "../utils/verifyUser.js";
 import Posts from "../models/Posts.js";
@@ -7,17 +11,22 @@ import Users from "../models/Users.js";
 import fetch from "node-fetch";
 import genError from "../utils/genError.js";
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, './client/build/uploads')
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        cb(null, file.fieldname + '-' + uniqueSuffix + '.jpg')
-    }
-})
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWSKEY,
+    secretAccessKey: process.env.AWSPASSWORD,
+    region: 'us-west-2'
+});
 
-const upload = multer({ storage: storage })
+const upload = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: 'mydbms',
+        contentType: multerS3.AUTO_CONTENT_TYPE,
+        key: function (req, file, cb) {
+            cb(null, Date.now().toString() + '-' + file.originalname)
+        }
+    })
+})
 const app = Express();
 
 app.post('/feedPost', verifyUser, upload.single('file'), async (req, res, next) => {
@@ -37,7 +46,7 @@ app.post('/feedPost', verifyUser, upload.single('file'), async (req, res, next) 
     else location = (req.body.location).split(',');
     let newPost = {
         "email": req.user.email,
-        "photo": req.file.filename,
+        "photo": req.file.location,
         "text": req.body.text,
         "tags": tags,
         "location": location
@@ -79,7 +88,7 @@ app.get('/allPost', verifyUser, async (req, res, next) => {
             let user = await Users.findOne({ email: post.email });
             return {
                 ...post,
-                "photo": `/uploads/${post.photo}`,
+                "photo": post.photo,
                 "createdAt": timeago.format(post.createdAt),
                 "userprofile": user.img,
                 "username": user.username
@@ -110,7 +119,7 @@ app.get('/posts/:email', verifyUser, async (req, res, next) => {
         posts = posts.map( post => {
             return {
                 ...post,
-                "photo": `/uploads/${post.photo}`,
+                "photo": post.photo,
                 "createdAt": timeago.format(post.createdAt),
                 "userprofile": user.img,
                 "username": user.username

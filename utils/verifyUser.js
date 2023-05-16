@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken"
 import genError from "./genError.js";
+import dotenv from "dotenv"
+dotenv.config({ path: ".env" });
 export const verifyUser = (req, res, next) => {
     let token = req.cookies.access_token;
     if (!token) {
-        console.log(err);
         return next(genError(402, "Token Not Found!"));
     }
     try {

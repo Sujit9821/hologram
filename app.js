@@ -13,11 +13,14 @@ const app = Express();
 app.use(Express.json());
 app.use(cookieParser());
 
-
 const connect = async () => {
-    await mongoose.connect(process.env.MONGOURL, { useNewUrlParser: true });
+    await mongoose.connect(process.env.MONGO_URL,
+        {
+            useNewUrlParser: true, useUnifiedTopology: true
+        });
     console.log("connected to database");
 }
+connect();
 
 app.use('/api/auth', AuthRoutes);
 app.use('/api/post', PostRoutes);
@@ -35,7 +38,7 @@ app.use((err, req, res, next) => {
         message: errorMessage,
         stack: err.stack,
     })
-})
+}) 
 
 if (process.env.NODE_ENV === "production") {
     app.use(Express.static(path.resolve(path.resolve(), 'client', 'build')));
@@ -50,6 +53,5 @@ if (process.env.NODE_ENV === "production") {
 
 const PORT = process.env.PORT || 8800;
 app.listen(PORT, () => {
-    connect();
     console.log(`connected on of ${PORT}`);
 })
