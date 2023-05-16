@@ -160,7 +160,7 @@ app.get('/markMszRead/:id', verifyUser, async (req, res, next) => {
     }
         res.status(200).json({success:true});
     }catch(err){
-        next(genError(500,"Server Error!");
+        next(genError(500,"Server Error!"));
              }
 })
 
