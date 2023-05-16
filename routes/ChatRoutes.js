@@ -153,10 +153,15 @@ app.get('/sharedPost/:id', verifyUser, async (req, res, next) => {
 
 
 app.get('/markMszRead/:id', verifyUser, async (req, res, next) => {
+    try{
     let msz = await chat.findById(req.params.id);
     if (msz.Fromemail !== req.user.email) {
         await chat.findByIdAndUpdate(req.params.id, { readed: true });
     }
+        res.status(200).json({success:true});
+    }catch(err){
+        next(genError(500,"Server Error!");
+             }
 })
 
 
