@@ -31,6 +31,7 @@ app.post('/login', async (req, res, next) => {
             }
         }
     } catch (err) {
+        console.log(err);
         next(genError(500, "Server Error!!"));
     }
 })

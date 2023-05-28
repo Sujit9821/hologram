@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import "./Post.css"
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart, faMessage, faPaperPlane, faShare, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faComments, faEllipsis, faHeart, faMessage, faPaperPlane, faShare, faSpinner, faThumbTack, faXmark } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-import { errorNotify, successNotify } from "../toast/toast";
+import { errorNotify, successNotify, warningNotify } from "../toast/toast";
+import Comment from "../comment/Comment";
 const Post = ({ data }) => {
     const { user } = useContext(AuthContext);
     const [openContact, setContact] = useState(null);
@@ -26,20 +27,48 @@ const Post = ({ data }) => {
             errorNotify(err.response.data.message || "Something went Wrong")
         }
     }
-    const handleTaskCompleteSubmit = async () => {
+    const [post_like, setPost_like] = useState(data.user_like);
+    const handle_like = async () => {
+        setPost_like(!post_like);
+        await axios.get(`/api/post/like/${data._id}`);
+    }
+    useEffect(() => {
+        let like_btn = document.getElementById('like_btn');
+        if (post_like) {
+            like_btn.children[0].style.color = 'red';
+        }
+        else {
+            like_btn.children[0].style.color = 'grey';
+        }
+    }, [post_like])
+    const [showComments, setShowComments] = useState(false);
+    const [comments, setComments] = useState(null);
+    const fetchComments = async () => {
         try {
-            await axios.post('/api/notification/taskCompleteThanks', taskComplete);
-            successNotify("Thanks Sent!");
-            setTaskComplete(null);
+            let res = await axios.get(`/api/post/comments/${data._id}`);
+            setComments(res.data);
         } catch (err) {
             errorNotify(err.response.data.message || "Something went Wrong")
         }
     }
-    const handleCompleteTask = () => {
-        setTaskComplete({
-            postId: data._id,
-            email: data.email,
-        })
+    useEffect(() => {
+        if (showComments) {
+            fetchComments();
+        }
+    }, [showComments])
+    const addComment = async () => {
+        const comment = document.getElementById('comment').value;
+        if (comment) {
+            try {
+                await axios.post(`/api/post/addComment/${data._id}`, { comment })
+                successNotify("Shared Successfully!");
+            } catch (err) {
+                console.log(err);
+                errorNotify(err.response.data.message || "Something went Wrong")
+            }
+        } else {
+            warningNotify("Write Something to Comment!");
+        }
     }
     return (
         <div class="mydiv">
@@ -50,38 +79,72 @@ const Post = ({ data }) => {
                             <Link to={`/profile/${data.email}`}>
                                 <div class="postTopLeft"><img class="postProfileImg"
                                     src={data.userprofile ? data.userprofile : '/img/dummy_user.jpg'}
-                                    alt={data.username} /><span class="postUsername">{data.username === user.username ? "You" : data.username}</span></div></Link>  <div class="time">{data.createdAt}</div>
+                                    alt={data.username} />
+                                    <div className="div_post_left">
+                                        <span class="postUsername">{data.username === user.username ? "You" : data.username}</span>
+                                        <div class="time">{data.createdAt}</div>
+                                    </div>
+                                </div>
+                            </Link>
+                            <div className="post_menu"><FontAwesomeIcon icon={faEllipsis} /></div>
                         </div>
                         <div class="postCenter"><span class="postText">{data.text} </span><img class="postImg"
                             src={data.photo}
                             alt="" />
                         </div>
+                        <hr />
+                        <div className="like_comments">
+                            <div className="like_number"><FontAwesomeIcon icon={faHeart} />{data.likes ? data.likes : 0} Likes</div>
+                            <div className="comment_number">{data.comments} Comments</div>
+                        </div>
+                        <hr className="post_hr" />
                         <div className="postBottom">
-                            {user.email !== data.email ?
-                                <div className="btns">Contact<FontAwesomeIcon icon={faMessage} /></div> :
-                                (
-                                    taskComplete ?
-                                        <div className="btns">
-                                            <button onClick={() => { setTaskComplete(null) }} >
-                                                <FontAwesomeIcon icon={faXmark} />
-                                            </button>
-                                            <div className="share_input_box">
-                                                <input onChange={(e) => { setTaskComplete({ ...taskComplete, email: e.target.value }) }} type="email" name="email" id="email" placeholder="Give Thanks to..." />
-                                            </div>
-                                            <button type="submit" onClick={handleTaskCompleteSubmit}>
-                                                <FontAwesomeIcon icon={faHeart} />
-                                            </button>
+                            <div className="btns" id="like_btn" onClick={handle_like}> <FontAwesomeIcon icon={faHeart} />Like</div>
+                            <div className="btns" onClick={() => { setShowComments(!showComments) }}><FontAwesomeIcon icon={faComments} />Comments</div>
+                            <div className="btns">
+                                {openContact ? (
+                                    <div>
+                                        <button >
+                                            <FontAwesomeIcon icon={faXmark} />
+                                        </button>
+                                        <div className="share_input_box">
+                                            <input onChange={(e) => { setContact({ ...openContact, email: e.target.value }) }} type="email" name="email" id="email" placeholder="Enter Email of recevier" />
+                                            <br />
+                                            <input onChange={(e) => { setContact({ ...openContact, "text": e.target.value }) }} type="text" name="text_msz" id="text_msz" placeholder="Enter Message..." />
                                         </div>
-                                        :
-                                        <div className="btns" onClick={handleCompleteTask}>
-                                            Mark As Completed
-                                            <FontAwesomeIcon icon={faMessage} />
-                                        </div>
-                                )
-                            }
-                            <div className="btns">{openContact ? (<div><button ><FontAwesomeIcon icon={faXmark} /></button> <div className="share_input_box"> <input onChange={(e) => { setContact({ ...openContact, email: e.target.value }) }} type="email" name="email" id="email" placeholder="Enter Email of recevier" /><br /> <input onChange={(e) => { setContact({ ...openContact, "text": e.target.value }) }} type="text" name="text_msz" id="text_msz" placeholder="Enter Message..." /> </div><button type="submit" onClick={handleSubmit}><FontAwesomeIcon icon={faPaperPlane} /></button> </div>) : (<div onClick={handleClick}>Share < FontAwesomeIcon icon={faShare} /></div>)}</div>
+                                        <button type="submit" onClick={handleSubmit}>
+                                            <FontAwesomeIcon icon={faPaperPlane} />
+                                        </button>
+                                    </div>) : (
+                                    <div onClick={handleClick}>
+                                        < FontAwesomeIcon icon={faShare} />Share
+                                    </div>)}
+                            </div>
                         </div>
                     </div>
+                    {showComments &&
+                        <div className="comments">
+                            <div>
+                                {
+                                    comments ?
+                                    (
+                                        comments.map(comment => (
+                                            <Comment data={comment} />
+                                        ))
+                                        ) : <div className="Loader_icon" style={{ margin: "auto", width: "max-content" }}><FontAwesomeIcon icon={faSpinner} /></div>
+                                }
+                            </div>
+                            <div className="addComment">
+                                <Link to={`/profile/${data.email}`}>
+                                    <img class="postProfileImg"
+                                        src={data.userprofile ? data.userprofile : '/img/dummy_user.jpg'}
+                                        alt={data.username} />
+                                </Link>
+                                <input type="text" name="comment" id="comment" placeholder="Write Comment..." />
+                                <button onClick={addComment} className="addCommentBtn">Add</button>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div >

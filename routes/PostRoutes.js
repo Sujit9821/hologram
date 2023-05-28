@@ -10,6 +10,7 @@ import Posts from "../models/Posts.js";
 import Users from "../models/Users.js";
 import fetch from "node-fetch";
 import genError from "../utils/genError.js";
+import comments from "../models/comments.js";
 
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWSKEY,
@@ -86,12 +87,16 @@ app.get('/allPost', verifyUser, async (req, res, next) => {
         ])
         posts = await Promise.all(posts.map(async post => {
             let user = await Users.findOne({ email: post.email });
+            let allComments = await comments.findOne({ postId: post._id });
             return {
                 ...post,
                 "photo": post.photo,
                 "createdAt": timeago.format(post.createdAt),
                 "userprofile": user.img,
-                "username": user.username
+                "username": user.username,
+                "likes": post.likes.length,
+                "user_like": post.likes.includes(req.user._id),
+                "comments": allComments ? allComments._doc.comments.length : 0,
             }
         }))
         res.status(200).json(posts);
@@ -116,15 +121,19 @@ app.get('/posts/:email', verifyUser, async (req, res, next) => {
                 }
             }
         ])
-        posts = posts.map( post => {
+        posts = await Promise.all(posts.map(async post => {
+            let allComments = await comments.findOne({ postId: post._id });
             return {
                 ...post,
                 "photo": post.photo,
                 "createdAt": timeago.format(post.createdAt),
                 "userprofile": user.img,
-                "username": user.username
+                "username": user.username,
+                "likes": post.likes.length,
+                "user_like": post.likes.includes(req.user._id),
+                "comments": allComments ? allComments._doc.comments.length : 0,
             }
-        })
+        }))
         res.status(200).json(posts);
     } catch (err) {
         next(genError(500, "Server Error!!"));
@@ -138,5 +147,88 @@ app.post('/fetchApis', (req, res, next) => {
         next(genError(500, "Server Error!!"))
     });
 })
+
+
+app.get('/like/:id', verifyUser, async (req, res) => {
+    try {
+        let post = await Posts.findById(req.params.id);
+        post = post._doc;
+        let likes = post.likes;
+        if (likes.includes(req.user._id)) {
+            await Posts.findByIdAndUpdate(req.params.id, {
+                $pull: {
+                    'likes': {
+                        $eq: req.user._id,
+                    }
+                }
+            })
+        }
+        else {
+            let newPost = await Posts.findByIdAndUpdate(req.params.id, {
+                $push: {
+                    'likes': req.user._id,
+                }
+            }, { new: true })
+            res.json(newPost);
+        }
+    } catch (err) {
+        console.log(err);
+    }
+})
+
+
+app.post('/addComment/:id', verifyUser, async (req, res) => {
+    let data = await comments.findOne({ postId: req.params.id });
+    if (data) {
+        let data2 = await comments.findByIdAndUpdate(data._id, {
+            $push: {
+                comments: {
+                    user: req.user._id,
+                    text: req.body.comment,
+                    time: new Date(),
+                }
+            }
+        }, { new: true })
+        res.json(data2);
+    } else {
+        let data2 = await (new comments({
+            postId: req.params.id,
+            comments: [{
+                user: req.user._id,
+                text: req.body.comment,
+                time: new Date(),
+            }]
+        })).save();
+        res.json(data2);
+    }
+})
+
+app.get('/comments/:id', verifyUser, async (req, res) => {
+    try {
+        let data = await comments.findOne({ postId: req.params.id }).populate('comments.user');
+        if (data) {
+            let allComments = data._doc.comments;
+            allComments = allComments.map(comment => {
+                comment = comment._doc;
+                return {
+                    ...comment,
+                    user: {
+                        "username": comment.user.username,
+                        "userProfile": comment.user.img,
+                        "email": comment.user.email,
+                    },
+                    time: timeago.format(comment.time),
+                }
+            })
+            res.status(200).json(allComments);
+        } else {
+            res.status(200).json([]);
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 export default app;

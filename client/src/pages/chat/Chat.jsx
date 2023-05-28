@@ -114,7 +114,7 @@ const Chat = () => {
                                     <ChatBox data={chat2} /> <br />
                                 </>
                                 )
-                            })) : (loading ? <div className="Loader_icon"><FontAwesomeIcon icon={faSpinner} /></div> : <div>Click on Users!</div>)
+                            })) : (loading ? <div className="Loader_icon" ><FontAwesomeIcon icon={faSpinner} /></div> : <div>Click on Users!</div>)
 
                         }
                     </div>

@@ -23,16 +23,21 @@
 }
 
 .postProfileImg {
-    width: 32px;
-    height: 32px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     object-fit: cover;
 }
 
 .postUsername {
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 500;
-    margin: 0 10px;
+}
+.time{
+    color: grey;
+}
+.div_post_left{
+    margin-left: 10px;
 }
 
 a {
@@ -96,6 +101,8 @@ a {
 
 .postText {
     margin-left: 20px;
+    color: grey;
+    font-size: 18px;
 }
 
 .postBottom {
@@ -134,4 +141,52 @@ a {
     display: inline-block;
     max-width: 100%;
     overflow: hidden;
+}
+
+.post_hr{
+    margin-bottom: 10px;
+}
+
+.like_comments{
+    display: flex;
+    align-self: center;
+    justify-content: space-between;
+    font-size: 20px;
+    padding: 10px;
+    color: grey;
+}
+.like_number svg{
+    color: red;
+    margin-right: 5px;
+}
+.comments{
+    margin-top: 20px;
+}
+.addComment{
+    /* margin-left: 20px; */
+    width: 80%;
+    display: flex;
+    margin: auto;
+    align-items: center;
+}
+.addComment input{
+    height: 40px;
+    width: 60%;
+    border-radius: 20px;
+    outline: none;
+    border: 1px solid black;
+    margin: 0 10px;
+    font-size: 18px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+.addComment button{
+    font-size: 18px;
+    width:70px;
+    height: 40px;
+    outline: none;
+    border: 1px solid black;
+    border-radius: 20px;
+    background-color: rgb(113, 189, 0);
+    color: white;
 }

@@ -31,7 +31,11 @@
 .postUsername {
     font-size: 15px;
     font-weight: 500;
-    margin: 0 10px;
+}
+.post_menu{
+    font-size: 18px;
+    color: grey;
+    margin-right: 5px;
 }
 
 .postDate {

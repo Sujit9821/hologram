@@ -7,6 +7,7 @@ import userNotify from "../models/userNotify.js";
 import genError from "../utils/genError.js";
 import notifications from "../models/notifications.js"
 import Posts from "../models/Posts.js";
+import comments from "../models/comments.js";
 const app = Express();
 
 app.get('/getUsers', verifyUser, async (req, res, next) => {
@@ -138,15 +139,20 @@ app.get('/sharedPost/:id', verifyUser, async (req, res, next) => {
         data = data._doc;
         let postUser = await Users.findOne({ email: data.email });
         postUser = postUser._doc;
+        let allComments = await comments.findOne({ postId: data._id });
         data = {
             ...data,
             "photo": data.photo,
             "createdAt": timeago.format(data.createdAt),
             "userprofile": postUser.img,
-            "username": postUser.username
+            "username": postUser.username,
+            "likes": data.likes.length,
+            "user_like": data.likes.includes(req.user._id),
+            "comments": allComments ? allComments._doc.comments.length : 0
         }
         res.status(200).json(data);
     } catch (err) {
+        console.log(err);
         next(genError(500, "Server Error!!"));
     }
 })

@@ -15,6 +15,9 @@ const post = new mongoose.Schema(
         },
         location: {
             type: Array,
+        },
+        likes: {
+            type: Array,
         }
     },
     { timestamps: true }
