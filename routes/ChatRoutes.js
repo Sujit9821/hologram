@@ -146,8 +146,8 @@ app.get('/sharedPost/:id', verifyUser, async (req, res, next) => {
             "createdAt": timeago.format(data.createdAt),
             "userprofile": postUser.img,
             "username": postUser.username,
-            "likes": data.likes.length,
-            "user_like": data.likes.includes(req.user._id),
+            "likes": data.likes?data.likes.length:0,
+            "user_like": data.likes?data.likes.includes(req.user._id):false,
             "comments": allComments ? allComments._doc.comments.length : 0
         }
         res.status(200).json(data);

@@ -94,8 +94,8 @@ app.get('/allPost', verifyUser, async (req, res, next) => {
                 "createdAt": timeago.format(post.createdAt),
                 "userprofile": user.img,
                 "username": user.username,
-                "likes": post.likes.length,
-                "user_like": post.likes.includes(req.user._id),
+                "likes": post.likes?post.likes.length:0,
+                "user_like": post.likes?post.likes.includes(req.user._id):false,
                 "comments": allComments ? allComments._doc.comments.length : 0,
             }
         }))
@@ -129,8 +129,8 @@ app.get('/posts/:email', verifyUser, async (req, res, next) => {
                 "createdAt": timeago.format(post.createdAt),
                 "userprofile": user.img,
                 "username": user.username,
-                "likes": post.likes.length,
-                "user_like": post.likes.includes(req.user._id),
+                "likes": post.likes?post.likes.length:0,
+                "user_like": post.likes?post.likes.includes(req.user._id):false,
                 "comments": allComments ? allComments._doc.comments.length : 0,
             }
         }))
