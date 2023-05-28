@@ -28,14 +28,8 @@ const Post = ({ data }) => {
         }
     }
     const [post_like, setPost_like] = useState(data.user_like);
-    const handle_like = async (ele) => {
+    const handle_like = async () => {
         setPost_like(!post_like);
-        if (post_like) {
-            ele.children[0].style.color = 'red';
-        }
-        else {
-            ele.children[0].style.color = 'grey';
-        }
         await axios.get(`/api/post/like/${data._id}`);
     }
     const [showComments, setShowComments] = useState(false);
@@ -91,13 +85,13 @@ const Post = ({ data }) => {
                         </div>
                         <hr />
                         <div className="like_comments">
-                            <div className="like_number"><FontAwesomeIcon icon={faHeart} />{data.likes ? data.likes : 0} Likes</div>
+                            <div className="like_number" ><FontAwesomeIcon icon={faHeart} />{(data.likes ? data.likes : 0) - data.user_like + post_like} Likes</div>
                             <div className="comment_number">{data.comments} Comments</div>
                         </div>
                         <hr className="post_hr" />
                         <div className="postBottom">
-                            <div className="btns" onClick={(e) => { handle_like(e.target) }}> <FontAwesomeIcon icon={faHeart} />Like</div>
-                            <div className="btns" onClick={() => { setShowComments(!showComments) }}><FontAwesomeIcon icon={faComments} />Comments</div>
+                            <div className={post_like ? "btns liked" : "btns disliked"}> <FontAwesomeIcon icon={faHeart} /> <span onClick={handle_like} >Like</span> </div>
+                            <div className="btns" onClick={() => { setShowComments(!showComments) }}><FontAwesomeIcon icon={faComments} />Comment</div>
                             <div className="btns">
                                 {openContact ? (
                                     <div>

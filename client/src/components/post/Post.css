@@ -28,6 +28,12 @@
     border-radius: 50%;
     object-fit: cover;
 }
+.liked svg{
+    color: red;
+}
+.disliked svg{
+    color: grey;
+}
 
 .postUsername {
     font-size: 18px;
