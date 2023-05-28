@@ -28,19 +28,16 @@ const Post = ({ data }) => {
         }
     }
     const [post_like, setPost_like] = useState(data.user_like);
-    const handle_like = async () => {
+    const handle_like = async (ele) => {
         setPost_like(!post_like);
-        await axios.get(`/api/post/like/${data._id}`);
-    }
-    useEffect(() => {
-        let like_btn = document.getElementById('like_btn');
         if (post_like) {
-            like_btn.children[0].style.color = 'red';
+            ele.children[0].style.color = 'red';
         }
         else {
-            like_btn.children[0].style.color = 'grey';
+            ele.children[0].style.color = 'grey';
         }
-    }, [post_like])
+        await axios.get(`/api/post/like/${data._id}`);
+    }
     const [showComments, setShowComments] = useState(false);
     const [comments, setComments] = useState(null);
     const fetchComments = async () => {
@@ -99,7 +96,7 @@ const Post = ({ data }) => {
                         </div>
                         <hr className="post_hr" />
                         <div className="postBottom">
-                            <div className="btns" id="like_btn" onClick={handle_like}> <FontAwesomeIcon icon={faHeart} />Like</div>
+                            <div className="btns" onClick={(e) => { handle_like(e.target) }}> <FontAwesomeIcon icon={faHeart} />Like</div>
                             <div className="btns" onClick={() => { setShowComments(!showComments) }}><FontAwesomeIcon icon={faComments} />Comments</div>
                             <div className="btns">
                                 {openContact ? (
@@ -127,10 +124,10 @@ const Post = ({ data }) => {
                             <div>
                                 {
                                     comments ?
-                                    (
-                                        comments.map(comment => (
-                                            <Comment data={comment} />
-                                        ))
+                                        (
+                                            comments.map(comment => (
+                                                <Comment data={comment} />
+                                            ))
                                         ) : <div className="Loader_icon" style={{ margin: "auto", width: "max-content" }}><FontAwesomeIcon icon={faSpinner} /></div>
                                 }
                             </div>
