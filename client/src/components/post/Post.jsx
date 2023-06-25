@@ -47,12 +47,14 @@ const Post = ({ data }) => {
             fetchComments();
         }
     }, [showComments])
+    const [newComment, setNewComment] = useState('');
     const addComment = async () => {
-        const comment = document.getElementById('comment').value;
-        if (comment) {
+        if (newComment != '') {
+            console.log(newComment);
             try {
-                await axios.post(`/api/post/addComment/${data._id}`, { comment })
-                successNotify("Shared Successfully!");
+                await axios.post(`/api/post/addComment/${data._id}`, { comment: newComment })
+                setNewComment('');
+                successNotify("Commented Successfully!");
             } catch (err) {
                 console.log(err);
                 errorNotify(err.response.data.message || "Something went Wrong")
@@ -128,10 +130,10 @@ const Post = ({ data }) => {
                             <div className="addComment">
                                 <Link to={`/profile/${data.email}`}>
                                     <img class="postProfileImg"
-                                        src={data.userprofile ? data.userprofile : '/img/dummy_user.jpg'}
-                                        alt={data.username} />
+                                        src={user.img ? user.img : '/img/dummy_user.jpg'}
+                                        alt="img" />
                                 </Link>
-                                <input type="text" name="comment" id="comment" placeholder="Write Comment..." />
+                                <input type="text" value={newComment} onChange={(e) => { setNewComment(e.target.value) }} name="comment" placeholder="Write Comment..." />
                                 <button onClick={addComment} className="addCommentBtn">Add</button>
                             </div>
                         </div>

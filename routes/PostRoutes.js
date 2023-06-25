@@ -94,8 +94,8 @@ app.get('/allPost', verifyUser, async (req, res, next) => {
                 "createdAt": timeago.format(post.createdAt),
                 "userprofile": user.img,
                 "username": user.username,
-                "likes": post.likes?post.likes.length:0,
-                "user_like": post.likes?post.likes.includes(req.user._id):false,
+                "likes": post.likes ? post.likes.length : 0,
+                "user_like": post.likes ? post.likes.includes(req.user._id) : false,
                 "comments": allComments ? allComments._doc.comments.length : 0,
             }
         }))
@@ -129,8 +129,8 @@ app.get('/posts/:email', verifyUser, async (req, res, next) => {
                 "createdAt": timeago.format(post.createdAt),
                 "userprofile": user.img,
                 "username": user.username,
-                "likes": post.likes?post.likes.length:0,
-                "user_like": post.likes?post.likes.includes(req.user._id):false,
+                "likes": post.likes ? post.likes.length : 0,
+                "user_like": post.likes ? post.likes.includes(req.user._id) : false,
                 "comments": allComments ? allComments._doc.comments.length : 0,
             }
         }))
@@ -220,6 +220,7 @@ app.get('/comments/:id', verifyUser, async (req, res) => {
                     time: timeago.format(comment.time),
                 }
             })
+            console.log(allComments);
             res.status(200).json(allComments);
         } else {
             res.status(200).json([]);
