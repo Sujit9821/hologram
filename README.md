@@ -39,5 +39,5 @@ To run this app on your local machine, follow these steps:
 Contributions are welcome! If you have any ideas or improvements, please submit a pull request. For major changes, please open an issue first to discuss the changes.
 
 
-## You can contact me for any tips/query anytime [Sujit Kumar Sangramsingh](https://sites.google.com/view/sks9821/home?authuser=2)
+## You can contact me for any tips/query anytime [Sujit Kumar Sangramsingh](https://www.linkedin.com/in/roy98210/)https://www.linkedin.com/in/roy98210/)
 
